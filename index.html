@@ -8,15 +8,74 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <style>
         #map {
-            position: absolute ;
-            top:0; bottom: 0;
-            height:100%;
+            border-radius:10px; 
+            height:97vh;
+            width:70%;
+            border: 2px solid #003831;
+             
+           
+        }
+        #navigation {
+            background-color:#E7DEAF;
+            height:97vh;
+            width:40%;
+            height:97%;
+            border-radius:10px;
+            border :2px solid #003831;
+            margin-left: 5px;
+        }
+        .container{
+            display: flex;
+            height :100vh;
             width:100%;
         }
+        #navigation {
+            display: grid;
+            justify-content:center;
+            
+        }
+        #navigation > div {
+            height:90%;
+            width:33vw;
+            /* border : 2px solid black; */
+            margin:auto;
+        }
+        #user-map-location,#directions,#results {
+            height:100px;
+            width:30vw;
+            border:2px solid black;
+        }
+        #search {
+            background-color:#d4d1c0 ;
+            margin-bottom: 10px;
+        }
+
+        
+
     </style>
 </head>
-<body>
-    <div id="map"></div>
+<body style="background-color: #73AF6F;">
+    
+    <div class="container">
+         <div id="map"></div>
+        <div id="navigation">
+             <div id="user-location">
+                <h2>Where Am I ?</h2>
+                <div id="user-map-location"></div>
+             </div>
+             <div id="go-to">
+                <h2>Navigate to :</h2>
+                <label for="search"></label>
+                <input id="search" type="text">
+                <button>Go</button>
+                <div id="results"></div>
+             </div>
+             <div id="access">
+                <h2>Directions :</h2>
+                <div id="directions"></div>
+             </div>
+        </div>
+    </div>
     <script>
         var map = L.map('map').setView([13.026553,80.016565],17);
         L.tileLayer('https://api.maptiler.com/maps/topo-v4/{z}/{x}/{y}@2x.png?key=E7SAn9VCAPS3bh8zDoBf',{ attribution : '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'}).addTo(map);
