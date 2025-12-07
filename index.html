@@ -185,16 +185,16 @@
             attribution : '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',maxZoom: 22
         }).addTo(map);
         
-        var marker = L.marker([13.026553,80.016565]).addTo(map);
+        // var marker = L.marker([13.026553,80.016565]).addTo(map);
        
         let userLat = null, userLng = null, userMarker = null;
         navigator.geolocation.watchPosition((pos)=>{
             userLat = pos.coords.latitude;
             userLng = pos.coords.longitude;
              document.getElementById('user-latitude').innerText = `
-    latitude: ${userLat.toFixed(3)}`;
+    latitude: ${userLat.toFixed(8)}`;
              document.getElementById('user-longitude').innerHTML = `
-    longitude: ${userLng.toFixed(3)}`;
+    longitude: ${userLng.toFixed(8)}`;
             if (!userMarker) {
                 userMarker = L.marker([userLat, userLng]).addTo(map);
             } else {
