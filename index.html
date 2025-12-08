@@ -7,150 +7,473 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <style>
-        #map {
-            border-radius:10px; 
-            height:97vh;
-            width:70%;
-            border: 2px solid #003831;      
-        }
-        #navigation {
-            background-color:#E7DEAF;
-            height:97vh;
-            width:40%;
-            height:97%;
-            border-radius:10px;
-            border :2px solid #003831;
-            margin-left: 5px;
-        }
-        .container{
-            display: flex;
-            height :100vh;
-            width:100%;
-        }
-        #navigation {
-            display: grid;
-            justify-content:center;
-            
-        }
-        #navigation > div {
-            height:90%;
-            width:33vw;
-            margin:auto;
-            padding:20px;
-        }
-        #user-map-location,#directions,#results {
-            height:120px;
-            width:30vw;
-            padding-right:0px;
-            padding-top:auto;  
-        }
-        #search {
-            background-color:#d4d1c0 ;
-            margin-bottom: 10px;
-            width: 70%;
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #003831;
-        }
-        
-        /* Autocomplete styles */
-        .autocomplete-container {
-            position: relative;
-            width: 70%;
-        }
-        
-        .autocomplete-items {
-            position: absolute;
-            border: 1px solid #003831;
-            border-top: none;
-            z-index: 99;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background-color: #E7DEAF;
-            max-height: 200px;
-            overflow-y: auto;
-            border-radius: 0 0 5px 5px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .autocomplete-item {
-            padding: 10px;
-            cursor: pointer;
-            background-color: #fff;
-            border-bottom: 1px solid #d4d4d4;
-        }
-        
-        .autocomplete-item:hover {
-            background-color: #e9e9e9;
-        }
-        
-        .autocomplete-active {
-            background-color: #003831 !important;
-            color: #ffffff;
-        }
-        
-        #go-to button {
-            padding: 8px 15px;
-            background-color: #003831;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-left: 5px;
-        }
-        
-        #go-to button:hover {
-            background-color: #00594d;
-        }
-        #user-map-location{
-            border:2px solid black;
-            background-color: #a8d483;
-            border-radius:10px;
-            padding-left:10px;
-            padding-bottom: 10px;
-           
-        }
-        #user-latitude,#user-longitude  {
-            margin:auto;
-      
-        }
+       /* Base container and layout */
+.container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    flex-direction: column;
+}
+
+/* Map styling */
+#map {
+    border-radius: 10px;
+    height: 50vh; /* Reduced for mobile */
+    width: 100%;
+    border: 2px solid #003831;
+    order: 2; /* Map below navigation on mobile */
+}
+
+/* Navigation panel */
+#navigation {
+    background-color: #E7DEAF;
+    height: 50vh; /* Reduced for mobile */
+    width: 100%;
+    border-radius: 10px;
+    border: 2px solid #003831;
+    margin: 5px 0;
+    order: 1; /* Navigation above map on mobile */
+}
+
+/* Navigation content layout */
+#navigation {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+#navigation > div {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Route controls section */
+#route-controls {
+    margin-bottom: 20px;
+}
+
+#route-controls h2 {
+    color: #003831;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+/* Location input groups */
+.location-input-group {
+    margin-bottom: 15px;
+}
+
+.location-input-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #003831;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+/* Autocomplete containers */
+.autocomplete-container {
+    position: relative;
+    display: flex;
+    gap: 5px;
+    width: 100%;
+}
+
+.autocomplete-container input {
+    flex: 1;
+   padding:2px ;
+    padding-left: 1vh;
+    background-color: #d4d1c0;
+    border: 1px solid #003831;
+    border-radius: 5px;
+    min-height: 44px;
+
+/* Icon buttons */
+.icon-btn {
+    padding: 0 15px;
+    min-width: 44px; /* Better touch target */
+    min-height: 44px;
+    background-color: #003831;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn:hover {
+    background-color: #00594d;
+}
+
+/* Autocomplete dropdowns */
+.autocomplete-items {
+    position: absolute;
+    border: 1px solid #003831;
+    border-top: none;
+    z-index: 1000;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #E7DEAF;
+    max-height: 200px;
+    overflow-y: auto;
+    border-radius: 0 0 5px 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: none;
+}
+
+.autocomplete-item {
+    padding: 12px;
+    cursor: pointer;
+    background-color: #fff;
+    border-bottom: 1px solid #d4d4d4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.autocomplete-item:hover {
+    background-color: #e9e9e9;
+}
+
+/* .autocomplete-active {
+    background-color: #003831 !important;
+    color: #ffffff;
+} */
+
+/* Action buttons */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 12px;
+    background-color: #003831;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    min-height: 44px; /* Better touch target */
+}
+
+.action-btn:hover {
+    background-color: #00594d;
+}
+
+/* Location info section */
+#location-info {
+    margin-top: 20px;
+}
+
+#location-info h3 {
+    color: #003831;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+/* Location card */
+.location-card {
+    background-color: #a8d483;
+    border: 2px solid #003831;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.location-header {
+    margin-bottom: 15px;
+}
+
+#user-location-result {
+    font-weight: bold;
+    color: #003831;
+    font-size: 1rem;
+}
+
+/* Location details */
+.location-details {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(0, 56, 49, 0.1);
+}
+
+.detail-label {
+    color: #003831;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.detail-value {
+    color: #003831;
+    font-size: 0.9rem;
+    text-align: right;
+}
+
+/* Directions section */
+#access {
+    margin-top: 20px;
+    height: auto;
+    min-height: 150px;
+}
+
+#access h2 {
+    color: #003831;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+#directions {
+    background-color: white;
+    border: 1px solid #003831;
+    border-radius: 5px;
+    padding: 15px;
+    max-height: 200px;
+    overflow-y: auto;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Route info */
+#route-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+#route-info p {
+    background-color: white;
+    border: 1px solid #003831;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 0;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+#route-info p span:first-child {
+    display: block;
+    color: #003831;
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 0.8rem;
+}
+
+#route-info p span:last-child {
+    color: #003831;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+/* Mobile-specific optimizations */
+@media (min-width: 768px) {
+    /* Tablet and desktop layout */
+    .container {
+        flex-direction: row;
+    }
+    
+    #map {
+        height: 97vh;
+        width: 70%;
+        order: 1;
+    }
+    
+    #navigation {
+        height: 97vh;
+        width: 30%;
+        margin-left: 5px;
+        margin-top: 0;
+        order: 2;
+    }
+    
+    /* Adjust font sizes for desktop */
+    #route-controls h2 {
+        font-size: 1.8rem;
+    }
+    
+    .location-input-group label {
+        font-size: 1rem;
+    }
+    
+    .autocomplete-container input {
+        font-size: 1rem;
+        padding:2px ;
+        padding-left: 1vh;
+        font-size: 0.9rem;
+    }
+    
+    .autocomplete-item {
+        font-size: 1rem;
+    }
+    
+    #user-location-result {
+        font-size: 1.1rem;
+    }
+    
+    .detail-label, .detail-value {
+        font-size: 1rem;
+    }
+    
+    #access h2 {
+        font-size: 1.3rem;
+    }
+    
+    #directions {
+        font-size: 1rem;
+    }
+}
+
+/* Large mobile devices (landscape) */
+@media (max-width: 767px) and (orientation: landscape) {
+    #map {
+        height: 60vh;
+    }
+    
+    #navigation {
+        height: 60vh;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+    .container {
+        height: 100vh;
+    }
+    
+    #map {
+        height: 45vh;
+    }
+    
+    #navigation {
+        height: 55vh;
+        padding: 10px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .icon-btn {
+        padding: 0 10px;
+        min-width: 40px;
+    }
+    
+    .autocomplete-container input {
+        padding:2px ;
+        padding-left: 1vh;
+        font-size: 0.9rem;
+    }
+    
+    .location-card {
+        padding: 10px;
+    }
+}
+@media (max-width: 768px) {
+    html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+    
+    input, button, select, textarea {
+        font-size: 16px; /* Prevents iOS zoom on focus */
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    .autocomplete-item {
+        padding: 15px; /* Larger touch targets */
+    }
+    
+    .icon-btn, .action-btn {
+        min-height: 48px;
+    }
+    
+    .detail-item {
+        padding: 10px 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+#go-button {
+    color:#73AF6F ;
+}
+
 
     </style>
 </head>
 <body style="background-color: #73AF6F; overflow: hidden;">
     
     <div class="container">
-         <div id="map"></div>
+        <div id="map"></div>
         <div id="navigation">
-             <div id="user-location">
+            <div id="user-location">
                 <h2>Where Am I ?</h2>
                 <div id="user-map-location">
-                    <h3>You are at : </h3>
-                    <h4 id="user-location-result"></h4>
-                    <p id="user-latitude"></p>
-                     <p id="user-longitude"></p>
-                   
+                    <h3>You are at :</h3>
+                    <h4 id="user-location-result">Loading...</h4>
+                    <div id="location-details">
+                        <p id="nearest-location"></p>
+                        <p id="user-latitude"></p>
+                        <p id="user-longitude"></p>
+                        <p id="distance-to-nearest"></p>
+                    </div>
                 </div>
-            
-             </div>
-             <div id="go-to">
+            </div>
+            <div id="go-to">
                 <h2>Navigate to :</h2>
                 <label for="search"></label>
                 <div class="autocomplete-container">
-                    <input id="search" type="text" placeholder="Search ">
+                    <input id="search" type="text" placeholder="Search location">
                     <div id="autocomplete-list" class="autocomplete-items"></div>
                     <button id="go-button">Go</button>
                 </div>
-             </div>
-             <div id="access">
+                <div style="margin-top: 10px;">
+                    <button id="use-current-btn" style="padding: 5px 10px; background: #4285F4; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                        Use Current Location as Start
+                    </button>
+                </div>
+            </div>
+            <div id="access">
                 <h2>Directions :</h2>
                 <div id="directions"></div>
-             </div>
+                <div id="route-info">
+                    <p id="distance"></p>
+                    <p id="duration"></p>
+                </div>
+            </div>
         </div>
     </div>
+   
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+    
     <script>
-
         const campusLocations = new Map([
             ["Main Gate", { lat: 13.02240, lng: 80.01667}],
             ["Library Block", { lat: 13.02620, lng: 80.01708 }],
@@ -168,65 +491,277 @@
             ["SEC Canteen", { lat: 13.02930, lng: 80.01923 }],
             ["SEC Admin Block", { lat: 13.02862, lng: 80.01945 }],
             ["Side Gate", { lat: 13.02841, lng: 80.02214 }],
-            ["Bus Parking Enterence", { lat: 13.028235, lng: 80.01975 }],
+            ["Bus Parking Entrance", { lat: 13.028235, lng: 80.01975 }],
             ["Bus Parking Exit", { lat: 13.02809, lng: 80.02130 }],
             ["SEC Pond", { lat: 13.028919, lng: 80.017555 }],
             ["Noyyal Hostel", { lat: 13.028007, lng: 80.017347 }],
             ["Amaravathi Guest House", { lat: 13.02768, lng: 80.01762 }],
             ["Garden Gallery", { lat: 13.026802, lng: 80.017127 }],
             ["AHS Block", { lat: 13.02543, lng: 80.01750 }]
-
-
-
         ]);
+        const locationTypes = {
+            'Department': ['CSE Department', 'ECE Department', 'EEE Department'],
+            'Hostel': ['Vaigai Hostel', 'Krishna Hostel', 'Noyyal Hostel'],
+            'Administrative': ['Admin Block', 'SEC Admin Block', 'Library Block'],
+            'Canteen': ['AHS Canteen', 'SEC Canteen'],
+            'Gate': ['Main Gate', 'Side Gate'],
+            'Facility': ['Generator Area', 'Bus Parking Entrance', 'Bus Parking Exit', 'SCAD Library', 'SCAD E1', 'SCAD E2', 'Amaravathi Guest House', 'Garden Gallery'],
+            'Landmark': ['SEC Pond', 'AHS Block']
+        };
 
-        var map = L.map('map').setView([13.026553,80.016565],17);
-        L.tileLayer('https://api.maptiler.com/maps/base-v4/{z}/{x}/{y}@2x.png?key=E7SAn9VCAPS3bh8zDoBf',{ 
-            attribution : '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',maxZoom: 22
+        var map = L.map('map').setView([13.026553, 80.016565], 17);
+        L.tileLayer('https://api.maptiler.com/maps/base-v4/{z}/{x}/{y}@2x.png?key=E7SAn9VCAPS3bh8zDoBf', { 
+            attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',
+            maxZoom: 22
         }).addTo(map);
-        
-        // var marker = L.marker([13.026553,80.016565]).addTo(map);
-       
-        let userLat = null, userLng = null, userMarker = null;
-        navigator.geolocation.watchPosition((pos)=>{
-            userLat = pos.coords.latitude;
-            userLng = pos.coords.longitude;
-             document.getElementById('user-latitude').innerText = `
-    latitude: ${userLat.toFixed(8)}`;
-             document.getElementById('user-longitude').innerHTML = `
-    longitude: ${userLng.toFixed(8)}`;
-            if (!userMarker) {
-                userMarker = L.marker([userLat, userLng]).addTo(map);
-            } else {
-                userMarker.setLatLng([userLat, userLng]);
-            }
-        }, console.error, { enableHighAccuracy: true });
 
-        // Autocomplete functionality
+        let userLat = null;
+        let userLng = null;
+        let userMarker = null;
+        let destinationMarker = null;
+        let routingControl = null;
+        let currentRoute = null;
+        let nearestLocation = null;
+        let nearestDistance = null;
+        let isUsingCurrentLocation = true;
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c * 1000;
+        }
+
+        function findNearestLocation(lat, lng) {
+            let nearest = null;
+            let minDistance = Infinity;
+            
+            for (const [locationName, locationCoords] of campusLocations) {
+                const distance = calculateDistance(lat, lng, locationCoords.lat, locationCoords.lng);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearest = locationName;
+                }
+            }
+            
+            return { name: nearest, distance: minDistance };
+        }
+
+        function getLocationType(locationName) {
+            for (const [type, locations] of Object.entries(locationTypes)) {
+                if (locations.includes(locationName)) {
+                    return type;
+                }
+            }
+            return 'Campus Location';
+        }
+
+        function updateUserLocationDisplay(lat, lng, nearestInfo) {
+            document.getElementById('user-latitude').innerText = `Latitude: ${lat.toFixed(6)}`;
+            document.getElementById('user-longitude').innerText = `Longitude: ${lng.toFixed(6)}`;
+            
+            if (nearestInfo) {
+                const locationType = getLocationType(nearestInfo.name);
+                document.getElementById('user-location-result').innerText = nearestInfo.name;
+                document.getElementById('nearest-location').innerHTML = 
+                    `<strong>Nearest ${locationType}:</strong> ${nearestInfo.name}`;
+                
+                const distanceInMeters = Math.round(nearestInfo.distance);
+                let distanceText;
+                if (distanceInMeters < 1000) {
+                    distanceText = `${distanceInMeters} meters away`;
+                } else {
+                    distanceText = `${(distanceInMeters / 1000).toFixed(2)} km away`;
+                }
+                
+                document.getElementById('distance-to-nearest').innerHTML = 
+                    `<strong>Distance:</strong> ${distanceText}`;
+                
+
+                nearestLocation = nearestInfo.name;
+                nearestDistance = nearestInfo.distance;
+                
+                
+                if (nearestInfo.distance < 50) {
+                    document.getElementById('user-location-result').innerHTML = 
+                        `<span style="color: #0c0;">✓ ${nearestInfo.name}</span>`;
+                }
+            }
+        }
+
+   
+        navigator.geolocation.watchPosition(
+            (pos) => {
+                userLat = pos.coords.latitude;
+                userLng = pos.coords.longitude;
+                
+
+                const nearestInfo = findNearestLocation(userLat, userLng);
+                updateUserLocationDisplay(userLat, userLng, nearestInfo);
+
+                if (!userMarker) {
+                    userMarker = L.marker([userLat, userLng], {
+                        icon: L.divIcon({
+                            className: 'user-marker',
+                            html: '<div style="background-color: #4285F4; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>',
+                            iconSize: [16, 16],
+                            iconAnchor: [8, 8]
+                        })
+                    }).addTo(map);
+                    
+                    userMarker.bindPopup(`
+                        <b>Your Location</b><br>
+                        Nearest: ${nearestInfo.name}<br>
+                        Distance: ${Math.round(nearestInfo.distance)}m
+                    `).openPopup();
+                } else {
+                    userMarker.setLatLng([userLat, userLng]);
+                    userMarker.bindPopup(`
+                        <b>Your Location</b><br>
+                        Nearest: ${nearestInfo.name}<br>
+                        Distance: ${Math.round(nearestInfo.distance)}m
+                    `);
+                }
+                
+                
+                if (isUsingCurrentLocation && currentRoute && destinationMarker) {
+                    calculateAndDisplayRoute(userLat, userLng, currentRoute.destination);
+                }
+            },
+            (error) => {
+                console.error('Geolocation error:', error);
+                document.getElementById('user-location-result').innerText = 'Location unavailable';
+                document.getElementById('nearest-location').innerHTML = 
+                    '<span style="color: red;">Please enable location services</span>';
+            },
+            { 
+                enableHighAccuracy: true,
+                maximumAge: 10000,
+                timeout: 5000
+            }
+        );
+
+        
+        function calculateAndDisplayRoute(startLat, startLng, destination) {
+            if (routingControl) {
+                map.removeControl(routingControl);
+                routingControl = null;
+            }
+            
+            const destinationCoords = campusLocations.get(destination);
+            if (!destinationCoords) return;
+            const startLocationName = isUsingCurrentLocation ? 
+                `Your Location (near ${nearestLocation})` : 
+                nearestLocation;
+
+            routingControl = L.Routing.control({
+                waypoints: [
+                    L.latLng(startLat, startLng),
+                    L.latLng(destinationCoords.lat, destinationCoords.lng)
+                ],
+                routeWhileDragging: false,
+                showAlternatives: false,
+                lineOptions: {
+                    styles: [{ color: '#4285F4', weight: 6, opacity: 0.8 }]
+                },
+                createMarker: function(i, waypoint, n) {
+                    if (i === 0) {
+                        return L.marker(waypoint.latLng, {
+                            icon: L.divIcon({
+                                className: 'start-marker',
+                                html: '<div style="background-color: #4285F4; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>',
+                                iconSize: [16, 16],
+                                iconAnchor: [8, 8]
+                            })
+                        }).bindPopup(`Start: ${startLocationName}`);
+                    } else {
+                        return L.marker(waypoint.latLng, {
+                            icon: L.divIcon({
+                                className: 'destination-marker',
+                                html: '<div style="background-color: #EA4335; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>',
+                                iconSize: [16, 16],
+                                iconAnchor: [8, 8]
+                            })
+                        }).bindPopup(`Destination: ${destination}`);
+                    }
+                },
+                router: L.Routing.osrmv1({
+                    serviceUrl: 'https://router.project-osrm.org/route/v1',
+                    profile: 'foot'
+                })
+            }).addTo(map);
+
+            currentRoute = {
+                destination: destination,
+                start: { lat: startLat, lng: startLng },
+                end: destinationCoords,
+                startName: startLocationName
+            };
+
+            routingControl.on('routesfound', function(e) {
+                const routes = e.routes;
+                const summary = routes[0].summary;
+
+                const distanceKm = (summary.totalDistance / 1000).toFixed(2);
+
+                const durationMin = Math.round(summary.totalTime / 60);
+                
+             
+                document.getElementById('distance').innerHTML = `<strong>Distance:</strong> ${distanceKm} km`;
+                document.getElementById('duration').innerHTML = `<strong>Estimated Time:</strong> ${durationMin} minutes`;
+                
+                const directionsDiv = document.getElementById('directions');
+                let instructionsHtml = `
+                    <p><strong>Route from ${startLocationName} to ${destination}</strong></p>
+                    <p><em>Starting point: ${isUsingCurrentLocation ? 'Your current location' : nearestLocation}</em></p>
+                `;
+                
+                if (routes[0].instructions && routes[0].instructions.length > 0) {
+                    instructionsHtml += '<ol>';
+                    routes[0].instructions.forEach((instruction, index) => {
+                        if (index < 8) { // Show only first 8 instructions
+                            instructionsHtml += `<li>${instruction.text}</li>`;
+                        }
+                    });
+                    instructionsHtml += '</ol>';
+                    if (routes[0].instructions.length > 8) {
+                        instructionsHtml += '<p><em>...and more directions</em></p>';
+                    }
+                } else {
+                    instructionsHtml += `<p>Direct route to ${destination}</p>`;
+                }
+                
+                directionsDiv.innerHTML = instructionsHtml;
+            });
+            
+          
+            routingControl.on('routingerror', function(e) {
+                console.error('Routing error:', e.error);
+                document.getElementById('directions').innerHTML = 
+                    `<p style="color: red;">Unable to calculate route. Please try again.</p>`;
+                document.getElementById('distance').innerHTML = '';
+                document.getElementById('duration').innerHTML = '';
+            });
+        }
+
         const searchInput = document.getElementById('search');
         const autocompleteList = document.getElementById('autocomplete-list');
         const goButton = document.getElementById('go-button');
-        const destSelect = document.getElementById('destSelect');
-        const youAreAt = document.getElementById('user-location-result');
-        
-        const uLng = document.getElementById('user-longitude');
-
-        console.log(userLat);
-        // youAreAt.innerHTML();
-        
-        uLng.innerHTML = userLng;
-        // Array of all campus locations for autocomplete
+        const useCurrentBtn = document.getElementById('use-current-btn');
         const campusLocationsArray = Array.from(campusLocations.keys());
-        
-        // Function to filter locations based on input
+
         function filterLocations(input) {
             if (!input) return [];
             return campusLocationsArray.filter(location => 
                 location.toLowerCase().includes(input.toLowerCase())
             );
         }
-        
-        // Function to display autocomplete results
+
         function showAutocompleteResults(input) {
             const filteredLocations = filterLocations(input);
             autocompleteList.innerHTML = '';
@@ -241,11 +776,18 @@
                 div.className = 'autocomplete-item';
                 div.textContent = location;
                 
+
+                const type = getLocationType(location);
+                const subtitle = document.createElement('span');
+                subtitle.className = 'autocomplete-subtitle';
+                subtitle.textContent = type;
+                subtitle.style.cssText = 'float: right; font-size: 0.8em; color: #666;';
+                div.appendChild(subtitle);
+                
                 div.addEventListener('click', function() {
                     searchInput.value = location;
                     autocompleteList.innerHTML = '';
                     autocompleteList.style.display = 'none';
-                    updateDropdownSelection(location);
                 });
                 
                 autocompleteList.appendChild(div);
@@ -253,56 +795,122 @@
             
             autocompleteList.style.display = 'block';
         }
-        
-        // Function to update dropdown selection
-        function updateDropdownSelection(location) {
-            for (let option of destSelect.options) {
-                if (option.textContent.includes(location) || option.value === location) {
-                    option.selected = true;
-                    break;
-                }
-            }
-        }
-        
-        // Event listener for search input
+
+
         searchInput.addEventListener('input', function() {
             showAutocompleteResults(this.value);
         });
-        
-        // Event listener for click on Go button
-        goButton.addEventListener('click', function() {
-            const selectedLocation = searchInput.value || destSelect.value;
-            if (selectedLocation && campusLocations.has(selectedLocation)) {
-                const coords = campusLocations.get(selectedLocation);
-                map.setView([coords.lat, coords.lng], 17);
+
+
+        useCurrentBtn.addEventListener('click', function() {
+            isUsingCurrentLocation = true;
+            this.style.background = '#4285F4';
+            this.style.color = 'white';
+            document.getElementById('user-location-result').style.fontWeight = 'bold';
+            
+            if (currentRoute && destinationMarker && userLat && userLng) {
+                calculateAndDisplayRoute(userLat, userLng, currentRoute.destination);
+            }
+        });
+
+        function useNearestLocationAsStart() {
+            isUsingCurrentLocation = false;
+            useCurrentBtn.style.background = '#ccc';
+            useCurrentBtn.style.color = '#666';
+            
+            if (nearestLocation && campusLocations.has(nearestLocation)) {
+                const nearestCoords = campusLocations.get(nearestLocation);
+                document.getElementById('user-location-result').innerHTML = 
+                    `<span style="color: #f60;">↳ ${nearestLocation}</span>`;
+                document.getElementById('user-location-result').style.fontWeight = 'normal';
                 
-                // Clear previous markers (except user marker)
-                if (marker) {
-                    map.removeLayer(marker);
+                if (currentRoute && destinationMarker) {
+                    calculateAndDisplayRoute(nearestCoords.lat, nearestCoords.lng, currentRoute.destination);
                 }
+            }
+        }
+
+        goButton.addEventListener('click', function() {
+            const selectedLocation = searchInput.value;
+            
+            if (!selectedLocation || !campusLocations.has(selectedLocation)) {
+                alert('Please select a valid location from the list');
+                return;
+            }
+            
+            const coords = campusLocations.get(selectedLocation);
+
+            map.setView([coords.lat, coords.lng], 17);
+
+            if (destinationMarker) {
+                map.removeLayer(destinationMarker);
+            }
+
+            destinationMarker = L.marker([coords.lat, coords.lng], {
+                icon: L.divIcon({
+                    className: 'destination-marker',
+                    html: '<div style="background-color: #EA4335; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>',
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                })
+            }).addTo(map);
+            
+            destinationMarker.bindPopup(`<b>${selectedLocation}</b>`).openPopup();
+
+            if (isUsingCurrentLocation && userLat && userLng) {
+                calculateAndDisplayRoute(userLat, userLng, selectedLocation);
+            } else if (nearestLocation) {
+                const nearestCoords = campusLocations.get(nearestLocation);
+                calculateAndDisplayRoute(nearestCoords.lat, nearestCoords.lng, selectedLocation);
+            } else {
+                document.getElementById('directions').innerHTML = 
+                    `<p>Please wait for location detection...</p>`;
+            }
+        });
+
+        document.getElementById('user-location-result').addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            if (nearestLocation) {
+                useNearestLocationAsStart();
                 
-                // Add new marker for selected location
-                marker = L.marker([coords.lat, coords.lng]).addTo(map);
-                marker.bindPopup(`<b>${selectedLocation}</b>`).openPopup();
-                
-                // Update directions display
-                const directionsDiv = document.getElementById('directions');
-                if (userLat && userLng) {
-                    directionsDiv.innerHTML = `
-                        <p><strong>From:</strong> Your Location</p>
-                        <p><strong>To:</strong> ${selectedLocation}</p>
-                        <p><strong>Distance:</strong> Calculating...</p>
-                    `;
+      
+                const confirmation = document.createElement('div');
+                confirmation.textContent = `Using ${nearestLocation} as start point`;
+                confirmation.style.cssText = 'position: fixed; top: 10px; right: 10px; background: #4CAF50; color: white; padding: 10px; border-radius: 5px; z-index: 1000;';
+                document.body.appendChild(confirmation);
+                setTimeout(() => confirmation.remove(), 2000);
+            }
+        });
+
+
+        document.getElementById('user-location-result').addEventListener('click', function() {
+            if (nearestLocation) {
+                if (isUsingCurrentLocation) {
+                    useNearestLocationAsStart();
                 } else {
-                    directionsDiv.innerHTML = `<p>Navigating to: ${selectedLocation}</p>`;
+                    useCurrentBtn.click();
                 }
             }
         });
-        
-        // Event listener for dropdown selection
-        destSelect.addEventListener('change', function() {
-            searchInput.value = this.value;
-        });
+
+        function clearRoute() {
+            if (routingControl) {
+                map.removeControl(routingControl);
+                routingControl = null;
+            }
+            if (destinationMarker) {
+                map.removeLayer(destinationMarker);
+                destinationMarker = null;
+            }
+            currentRoute = null;
+            document.getElementById('directions').innerHTML = '';
+            document.getElementById('distance').innerHTML = '';
+            document.getElementById('duration').innerHTML = '';
+        }
+
+        // Add clear button (optional)
+        // <button id="clear-button" style="margin-top: 10px; padding: 5px 10px; background: #f44336; color: white; border: none; border-radius: 3px; cursor: pointer;">Clear Route</button>
+        // document.getElementById('clear-button').addEventListener('click', clearRoute);
         
         // Close autocomplete when clicking outside
         document.addEventListener('click', function(e) {
@@ -328,6 +936,8 @@
                 e.preventDefault();
                 if (currentFocus > -1 && items[currentFocus]) {
                     items[currentFocus].click();
+                } else {
+                    goButton.click();
                 }
             }
         });
@@ -335,7 +945,6 @@
         function addActive(items) {
             if (!items) return false;
             
-            // Remove active class from all items
             for (let i = 0; i < items.length; i++) {
                 items[i].classList.remove('autocomplete-active');
             }
@@ -349,6 +958,104 @@
             }
         }
 
+        // Add CSS for better styling
+        const style = document.createElement('style');
+        style.textContent = `
+            .autocomplete-items {
+                position: absolute;
+                border: 1px solid #d4d4d4;
+                border-radius: 0 0 4px 4px;
+                z-index: 1000;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                max-height: 250px;
+                overflow-y: auto;
+                display: none;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }
+            
+            .autocomplete-item {
+                padding: 10px;
+                cursor: pointer;
+                border-bottom: 1px solid #f0f0f0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .autocomplete-item:hover {
+                background-color: #f5f5f5;
+            }
+            
+            .autocomplete-active {
+                background-color: #4285F4 !important;
+                color: white;
+            }
+            
+            .autocomplete-active .autocomplete-subtitle {
+                color: #e0e0e0 !important;
+            }
+            
+            #route-info {
+                margin-top: 10px;
+                padding: 10px;
+                background: #f5f5f5;
+                border-radius: 5px;
+            }
+            
+            #directions {
+                max-height: 200px;
+                overflow-y: auto;
+                padding: 10px;
+                background: white;
+                border-radius: 5px;
+                margin-bottom: 10px;
+                border: 1px solid #ddd;
+            }
+            
+            #directions ol {
+                margin-left: 20px;
+                margin-top: 5px;
+            }
+            
+            #directions li {
+                margin-bottom: 5px;
+                padding: 3px 0;
+            }
+            
+            #location-details {
+                margin-top: 10px;
+                padding: 10px;
+                background: rgba(255,255,255,0.8);
+                border-radius: 5px;
+            }
+            
+            #user-location-result {
+                cursor: pointer;
+                color: #4285F4;
+                margin: 10px 0;
+                padding: 5px;
+                border-radius: 3px;
+                transition: background 0.3s;
+            }
+            
+            #user-location-result:hover {
+                background: rgba(66, 133, 244, 0.1);
+            }
+            
+            .user-marker, .start-marker, .destination-marker {
+                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initial display
+        document.getElementById('user-location-result').innerText = 'Detecting your location...';
+
     </script>
 </body>
+
+
 </html>
